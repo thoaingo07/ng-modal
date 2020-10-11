@@ -19,6 +19,10 @@ export class ModalComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.loadComponent();
+  }
+
+  loadComponent() {
     this.content = this.ref.content;
 
     if (typeof this.content === 'string') {

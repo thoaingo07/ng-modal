@@ -15,24 +15,33 @@ export class ModalService {
         content: string | TemplateRef<any> | Type<any>,
         data: T
     ): ModalOverlayRef<R> {
+        const positionStrategy = this.overlay.position()
+            .global()
+            .centerHorizontally()
+            .centerVertically();
         const configs = new OverlayConfig({
             hasBackdrop: true,
             panelClass: ['modal', 'is-active'],
-            backdropClass: 'modal-background'
+            backdropClass: 'modal-background',
+            positionStrategy
         });
 
         const overlayRef = this.overlay.create(configs);
 
         const myOverlayRef = new ModalOverlayRef<R, T>(overlayRef, content, data);
+        const injector = this.createInjector(myOverlayRef);
 
-        const injector = this.createInjector(myOverlayRef, this.injector);
         overlayRef.attach(new ComponentPortal(ModalComponent, null, injector));
-
         return myOverlayRef;
     }
 
-    createInjector(ref: ModalOverlayRef, inj: Injector) {
-        const injectorTokens = new WeakMap([[ModalOverlayRef, ref]]);
-        return new PortalInjector(inj, injectorTokens);
+    createInjector(ref: ModalOverlayRef) {
+        const injectorTokens = new WeakMap();
+        injectorTokens.set(ModalOverlayRef, ref);
+        //return Injector.create({ providers: [{ provide: ModalOverlayRef, useClass: ModalOverlayRef }], parent: this.injector, name: "ref" });
+
+      
+
+        return new PortalInjector(this.injector, injectorTokens);
     }
 }
